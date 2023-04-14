@@ -74,31 +74,58 @@ const menu = [
 ];
 
 const sectionCenter = document.querySelector(".section-center");
-const filterBtns = document.querySelectorAll(".filter-btn");
 
 window.addEventListener("DOMContentLoaded", () => {
   displayMenuItems(menu);
+  displayMenuButtons();
 });
 
-filterBtns.forEach(function (btn) {
-  btn.addEventListener("click", (e) => {
-    const currentBtn = e.currentTarget.dataset.id;
+// Gets and adds buttons dynamically based on the categories of the menuItems
+function displayMenuButtons() {
+  // Gets unique categories, no duplicates
+  let category = menu.reduce(
+    function (value, item) {
+      if (!value.includes(item.category)) {
+        value.push(item.category);
+      }
+      return value;
+    },
+    ["all"]
+  );
 
-    // filters and stores those menu items which are same as buttons
-    let filtered = menu.filter(function (item) {
-      if (item.category === currentBtn) {
-        return item;
+  // Generates and adds buttons to the btn-container
+  const categoryBtns = category
+    .map(function (item) {
+      return `<button type="button" class="filter-btn" data-id=${item}>
+    ${item}
+  </button>`;
+    })
+    .join("");
+
+  const containerBtn = document.querySelector(".btn-container");
+  containerBtn.innerHTML = categoryBtns;
+
+  const filterBtns = document.querySelectorAll(".filter-btn");
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener("click", (e) => {
+      const currentBtn = e.currentTarget.dataset.id;
+
+      // filters and stores those menu items which are same as buttons
+      let filtered = menu.filter(function (item) {
+        if (item.category === currentBtn) {
+          return item;
+        }
+      });
+
+      // if clicked button was all then load all menu items, else load respected filtered array of menu items according to the buttons
+      if (currentBtn === "all") {
+        displayMenuItems(menu);
+      } else {
+        displayMenuItems(filtered);
       }
     });
-
-    // if clicked button was all then load all menu items, else load respected filtered array of menu items according to the buttons
-    if (currentBtn === "all") {
-      displayMenuItems(menu);
-    } else {
-      displayMenuItems(filtered);
-    }
   });
-});
+}
 
 // this function takes in an array and shows each element of array on screen.
 function displayMenuItems(item) {
